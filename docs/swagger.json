@@ -1,0 +1,2379 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ITC Times API",
+    "version": "1.0.0",
+    "description": "Dokumentasi REST API untuk Aplikasi ITC Times, dibangun menggunakan Node.js, Express, dan Prisma ORM."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/v1",
+      "description": "Server Development Lokal"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "password123"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": [
+          "fullname",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "fullname": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "password123"
+          }
+        }
+      },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "required": [
+          "token",
+          "new_password"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "reset_token_here"
+          },
+          "new_password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "newpassword123"
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "required": [
+          "old_password",
+          "new_password"
+        ],
+        "properties": {
+          "old_password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "oldpassword123"
+          },
+          "new_password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "newpassword123"
+          }
+        }
+      },
+      "UpdateRoleRequest": {
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "kadiv",
+              "admin"
+            ],
+            "example": "kadiv"
+          }
+        }
+      },
+      "TagRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Event"
+          }
+        }
+      },
+      "CommentRequest": {
+        "type": "object",
+        "required": [
+          "announcementId",
+          "content"
+        ],
+        "properties": {
+          "announcementId": {
+            "type": "string",
+            "example": "uuid-here"
+          },
+          "content": {
+            "type": "string",
+            "example": "This is a great announcement!"
+          }
+        }
+      },
+      "CommentUpdateRequest": {
+        "type": "object",
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "string",
+            "example": "This is an updated comment!"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Endpoint untuk login, register, dan kata sandi"
+    },
+    {
+      "name": "User",
+      "description": "Manajemen profil pengguna dan perubahan peran admin"
+    },
+    {
+      "name": "Announcement",
+      "description": "Endpoint manajemen pengumuman ITC"
+    },
+    {
+      "name": "Tag",
+      "description": "Manajemen filter label / tag pengumuman"
+    },
+    {
+      "name": "Comment",
+      "description": "Manajemen komentar pada pengumuman"
+    }
+  ],
+  "paths": {
+    "/user/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login ke dalam sistem",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Login successfully",
+                  "data": {
+                    "access_token": "eyJhbGciOiJIUzI1NiIsInR..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Invalid credentials"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/register": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Mendaftarkan akun Guest / User baru",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User Data created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "User Data created successfully",
+                  "data": {
+                    "id": "uuid",
+                    "fullname": "John Doe",
+                    "email": "user@example.com",
+                    "role": "user",
+                    "createdAt": "2026-03-30T10:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict / Already exists",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data already exist"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/forgot-password": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Request pengiriman email pemulihan token password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reset password email sent",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Reset password email sent",
+                  "data": {
+                    "resetToken": "generated-token-here"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Forbidden access"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/reset-password": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Mereset password sesuai dengan token yang diterima",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Password reset successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Forbidden access"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Menghancurkan sesi token milik akun saat ini",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout Successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Logout Successfully"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/profile": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Melihat rincian profil user aktif",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User data retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "User data",
+                  "data": {
+                    "id": "uuid",
+                    "fullname": "John Doe",
+                    "email": "user@example.com",
+                    "role": "user",
+                    "photo": "https://cloudinary.com/image.jpg"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/update-profile": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Memperbarui detil profil (Nama atau Foto) [Akses: User, Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fullname": {
+                    "type": "string",
+                    "example": "John Updated"
+                  },
+                  "photo": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Profile foto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Profile updated successfully",
+                  "data": {
+                    "fullname": "John Updated",
+                    "photo": "https://cloudinary.com/new_image.jpg"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/change-password": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Merubah password user menggunakan password lama [Akses: User, Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Password changed successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Current password is incorrect"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/list": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Melihat filter seluruh akun user [Akses: Admin]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "Mencari pengguna dari nama/email",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "Memfilter peran (contoh: user, kadiv)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Halaman",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Batas data per halaman",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Mengurutkan (contoh: newest, oldest)",
+            "schema": {
+              "type": "string",
+              "default": "newest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User filter data retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "User filter data",
+                  "data": [
+                    {
+                      "id": "uuid1",
+                      "fullname": "John Doe",
+                      "role": "user"
+                    },
+                    {
+                      "id": "uuid2",
+                      "fullname": "Kadiv Person",
+                      "role": "kadiv"
+                    }
+                  ],
+                  "page": 1,
+                  "limit": 10,
+                  "total": 2
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/update-role/{id}": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Menetapkan peran anggota (Contoh: Menjadikan User sbg Kadiv) [Akses: Admin]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User role updated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "User role updated",
+                  "data": {
+                    "id": "uuid",
+                    "role": "kadiv"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/announcement": {
+      "get": {
+        "tags": [
+          "Announcement"
+        ],
+        "summary": "Menampilkan seluruh pengumuman (Public)",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Halaman",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Batas data per halaman",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Pencarian kata kunci Judul / Deskripsi",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Memfilter banyak tag bersamaan (pisahkan dengan koma: Event,General)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "description": "Filter rentang tayang",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "week",
+                "month",
+                "year",
+                "all"
+              ],
+              "default": "all"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Announcement's Data retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Announcement's Data",
+                  "data": [
+                    {
+                      "id": "uuid1",
+                      "title": "Pendaftaran",
+                      "slug": "pendaftaran",
+                      "tags": [
+                        {
+                          "tag": {
+                            "name": "Event"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "total": 1,
+                  "page": 1,
+                  "limit": 10
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/announcement/{announcementId}": {
+      "get": {
+        "tags": [
+          "Announcement"
+        ],
+        "summary": "Menampilkan detail satu pengumuman dari UUID (Public)",
+        "parameters": [
+          {
+            "name": "announcementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Announcement's Detail Data retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Announcement's Detail Data",
+                  "data": {
+                    "id": "uuid",
+                    "title": "Detail",
+                    "content": "Full Content text"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/announcement/slug/{slug}": {
+      "get": {
+        "tags": [
+          "Announcement"
+        ],
+        "summary": "Menampilkan detail satu pengumuman dari Slug URl (Public)",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Announcement's Detail Data retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Announcement's Detail Data",
+                  "data": {
+                    "id": "uuid",
+                    "title": "Detail",
+                    "slug": "detail-slug",
+                    "content": "Full Content text"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/announcement/create": {
+      "post": {
+        "tags": [
+          "Announcement"
+        ],
+        "summary": "Membuat pengumuman baru dengan foto [Akses: Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "image_url": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Announcement created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Announcement created successfully",
+                  "data": {
+                    "id": "uuid",
+                    "title": "New",
+                    "imageUrl": "cloudinary.url"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict / Already exists",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data already exist"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/announcement/update/{announcementId}": {
+      "put": {
+        "tags": [
+          "Announcement"
+        ],
+        "summary": "Memperbarui sumber pengumuman yang ada [Akses: Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "announcementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "image_url": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Announcement updated successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Announcement updated successfully",
+                  "data": {
+                    "id": "uuid",
+                    "title": "Updated"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict / Already exists",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data already exist"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/announcement/delete/{announcementId}": {
+      "delete": {
+        "tags": [
+          "Announcement"
+        ],
+        "summary": "Menghapus pengumuman [Akses: Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "announcementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Announcement deleted successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Announcement deleted successfully"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tag": {
+      "get": {
+        "tags": [
+          "Tag"
+        ],
+        "summary": "Rincian seluruh tag aktif (Public)",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Halaman",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Batas data per halaman",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tag's Data retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Tag's Data",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "name": "Event",
+                      "slug": "event"
+                    }
+                  ],
+                  "page": 1,
+                  "limit": 10,
+                  "total": 1
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tag/{tagId}": {
+      "get": {
+        "tags": [
+          "Tag"
+        ],
+        "summary": "Rincian spesifik target UUID Tag (Public)",
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tag detail data retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Tag detail data",
+                  "data": {
+                    "id": "uuid",
+                    "name": "Event",
+                    "slug": "event"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tag/slug/{slug}": {
+      "get": {
+        "tags": [
+          "Tag"
+        ],
+        "summary": "Rincian spesifik Slug Tag (Public)",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tag detail data retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Tag detail data",
+                  "data": {
+                    "id": "uuid",
+                    "name": "Event",
+                    "slug": "event"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tag/create": {
+      "post": {
+        "tags": [
+          "Tag"
+        ],
+        "summary": "Membuat koleksi tag baru [Akses: Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "New Tag has been added",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "New Tag has been added",
+                  "data": {
+                    "id": "uuid",
+                    "name": "Event",
+                    "slug": "event"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict / Already exists",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data already exist"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tag/update/{tagId}": {
+      "put": {
+        "tags": [
+          "Tag"
+        ],
+        "summary": "Mengedit penamaan Tag [Akses: Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tag has been updated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Tag has been updated",
+                  "data": {
+                    "id": "uuid",
+                    "name": "Updated Event",
+                    "slug": "updated-event"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict / Already exists",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data already exist"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tag/delete/{tagId}": {
+      "delete": {
+        "tags": [
+          "Tag"
+        ],
+        "summary": "Menghapus target Tag [Akses: Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tag has been deleted",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Tag has been deleted"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment/{commentId}": {
+      "get": {
+        "tags": [
+          "Comment"
+        ],
+        "summary": "Melihat detail suatu balasan Komentar",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comment Detail retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Comment Detail",
+                  "data": {
+                    "id": "uuid",
+                    "content": "Awesome!",
+                    "userId": "user-uuid"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment/announcement/{announcementId}": {
+      "get": {
+        "tags": [
+          "Comment"
+        ],
+        "summary": "Mendapat daftar halaman balasan Komentar disebuah Announcement (Public)",
+        "parameters": [
+          {
+            "name": "announcementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Halaman",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Batas data per halaman",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Announcement's Comments retrieved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Announcement's Comments",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "content": "Nice!",
+                      "user": {
+                        "fullname": "John"
+                      }
+                    }
+                  ],
+                  "total": 1,
+                  "page": 1,
+                  "limit": 10
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment/create": {
+      "post": {
+        "tags": [
+          "Comment"
+        ],
+        "summary": "Menaruh komentar baru terhadap sebuah obrolan / Announcement [Akses: User, Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comment created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Comment created successfully",
+                  "data": {
+                    "id": "uuid",
+                    "content": "Awesome announcement!"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict / Already exists",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data already exist"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment/update/{commentId}": {
+      "put": {
+        "tags": [
+          "Comment"
+        ],
+        "summary": "Mengedit ulang isi komentar yang sudah tayang [Akses: User, Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comment updated successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Comment updated successfully",
+                  "data": {
+                    "id": "uuid",
+                    "content": "Ah yes, it is wonderful!"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed / Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Validation failed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Forbidden access"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment/delete/{commentId}": {
+      "delete": {
+        "tags": [
+          "Comment"
+        ],
+        "summary": "Menghapus riwayat komentar milik Auth tersebut [Akses: User, Kadiv]",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comment deleted successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Comment deleted successfully"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized / Invalid credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Forbidden access"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
