@@ -11,7 +11,7 @@
       "description": "Server Development Lokal"
     },
     {
-      "url": "http://itc-times.vercel.app/api/v1",
+      "url": "https://itc-times.vercel.app/api/v1",
       "description": "Production Server"
     }
   ],
