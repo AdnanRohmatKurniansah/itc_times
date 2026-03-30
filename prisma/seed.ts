@@ -3,6 +3,13 @@ import bcrypt from 'bcrypt'
 import { prisma } from '../src/lib/prisma'
 
 async function main() {
+  const user = await prisma.user.findFirst()
+
+  if (user) {
+    console.log('Seed already exists')
+    return
+  }
+
   const existingAdmin = await prisma.user.findFirst({
     where: { role: 'admin' }
   })

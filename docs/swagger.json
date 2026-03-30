@@ -9,6 +9,10 @@
     {
       "url": "http://localhost:3000/api/v1",
       "description": "Server Development Lokal"
+    },
+    {
+      "url": "http://itc-times.vercel.app/api/v1",
+      "description": "Production Server"
     }
   ],
   "components": {

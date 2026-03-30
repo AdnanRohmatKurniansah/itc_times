@@ -7,7 +7,7 @@
     "dev": "nodemon src/index.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node build/index.js",
-    "vercel-build": "prisma generate",
+    "vercel-build": "prisma generate && npm run seed",
     "postinstall": "prisma generate",
     "format": "prettier --write . && eslint . --fix",
     "format:check": "prettier --check . && eslint .",
