@@ -1,7 +1,7 @@
 # ITC Times - Backend
 
 **Nama Lengkap**: Adnan Rohmat Kurniansah  
-**Keterangan**: PROJECT digunakan untuk memenuhi seleksi THE HUNTER Web DevelopmentITC UPNYK
+**Keterangan**: "Project digunakan untuk memenuhi seleksi THE HUNTER Web Development ITC UPNYK"
 
 ---
 
