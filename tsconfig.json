@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+
+    /* Language and Environment */
+    "target": "es2020",
+    "lib": ["es2020"],
+    
+    /* Modules */
+    "module": "commonjs",
+    // "moduleResolution": "nodenext",
+    
+    /* Emit */
+    // "rootDir": "src",
+    "outDir": "build",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    /* Type Checking */
+    "strict": true,
+    "noImplicitAny": true,
+    "types": ["jest", "node"],
+    
+    /* Completeness */
+    "skipLibCheck": true,
+    
+    /* Deprecation Handling */
+    "ignoreDeprecations": "5.0"
+  },
+  "include": [
+    "src/**/*",
+    "api/**/*"
+  ],
+  "exclude": ["node_modules", "build"]
+}

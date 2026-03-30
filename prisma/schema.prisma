@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  user
+  kadiv
+  admin
+}
+
+model User {
+  id String @id @default(uuid())
+  fullname String @db.VarChar(255)
+  email String @unique @db.VarChar(150)
+  password String
+  role Role @default(user)
+  photo String?
+  tokenVersion Int @default(0)
+
+  resetToken String?
+  resetTokenExpiry DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  announcements Announcement[]
+  comments Comment[]
+}
+
+model Announcement {
+  id String @id @default(uuid())
+  title String
+  slug String @unique
+  content String
+  imageUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId String
+
+  author User @relation(fields: [authorId], references: [id])
+  announcementTags AnnouncementTag[]
+  comments Comment[]
+}
+
+model Tag {
+  id String @id @default(uuid())
+  name String @db.VarChar(150)
+  slug String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  announcementTags AnnouncementTag[]
+}
+
+model AnnouncementTag {
+  id String @id @default(uuid())
+  announcementId String
+  tagId String
+  createdAt DateTime @default(now())
+
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, tagId]) 
+}
+
+model Comment {
+  id String @id @default(uuid())
+  content String @db.VarChar(255)
+  userId String
+  announcementId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+}
+
