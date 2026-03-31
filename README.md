@@ -31,7 +31,7 @@ src/
 └── middlewares/  // Interceptor penengah (seperti Verifikasi JWT, Role Guard, & Error Handler)
 ```
 
-Pemisahan tanggung jawab (Separation of Concerns) di atas memfasilitasi penulisan **Clean Code**. Karena kodenya *modular*, ketika ada bug atau fitur baru, pengembang tidak perlu khawatir sistem internal lainnya akan terganggu.
+Pemisahan tanggung jawab (Separation of Concerns) di atas memfasilitasi penulisan **Clean Code**. Karena kodenya *modular*, ketika ada bug atau fitur baru, jadi tidak perlu khawatir sistem internal lainnya akan terganggu.
 
 ## 🤔 Alasan Pemilihan Teknologi
 
@@ -69,7 +69,7 @@ Untuk mengakses *Documentasi Web Base*-nya:
 
 1. **Clone Repository (Bila belum ada):**
    ```bash
-   git clone <url-repository-anda>
+   git clone https://github.com/AdnanRohmatKurniansah/itc_times.git
    cd itc_times
    ```
 

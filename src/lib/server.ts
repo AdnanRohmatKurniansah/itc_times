@@ -10,6 +10,7 @@ import path from 'path'
 const createServer = () => {
   const swaggerFile = fs.readFileSync(path.join(__dirname, '../../docs/swagger.json'), 'utf-8')
   const swaggerDocument = JSON.parse(swaggerFile)
+  
   const app: Application = express()
 
   const apiV1 = Router()
