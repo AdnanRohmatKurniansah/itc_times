@@ -48,7 +48,8 @@
         "required": [
           "fullname",
           "email",
-          "password"
+          "password",
+          "confirmPassword"
         ],
         "properties": {
           "fullname": {
@@ -63,7 +64,11 @@
           "password": {
             "type": "string",
             "minLength": 6,
-            "example": "password123"
+            "example": "Password123!"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "example": "Password123!"
           }
         }
       },
@@ -76,6 +81,7 @@
           "email": {
             "type": "string",
             "format": "email",
+            "maxLength": 150,
             "example": "user@example.com"
           }
         }
@@ -254,12 +260,12 @@
             }
           },
           "404": {
-            "description": "Not found",
+            "description": "User not found",
             "content": {
               "application/json": {
                 "example": {
                   "success": false,
-                  "message": "Data not found"
+                  "message": "User doesnt exist"
                 }
               }
             }
@@ -307,7 +313,10 @@
                     "fullname": "John Doe",
                     "email": "user@example.com",
                     "role": "user",
-                    "createdAt": "2026-03-30T10:00:00.000Z"
+                    "photo": null,
+                    "tokenVersion": 0,
+                    "createdAt": "2026-03-30T10:00:00.000Z",
+                    "updatedAt": "2026-03-30T10:00:00.000Z"
                   }
                 }
               }
@@ -325,12 +334,12 @@
             }
           },
           "409": {
-            "description": "Conflict / Already exists",
+            "description": "Email already exist",
             "content": {
               "application/json": {
                 "example": {
                   "success": false,
-                  "message": "Data already exist"
+                  "message": "Email already exist"
                 }
               }
             }
@@ -563,7 +572,10 @@
                     "fullname": "John Doe",
                     "email": "user@example.com",
                     "role": "user",
-                    "photo": "https://cloudinary.com/image.jpg"
+                    "photo": "https://cloudinary.com/image.jpg",
+                    "tokenVersion": 0,
+                    "createdAt": "2026-03-30T10:00:00.000Z",
+                    "updatedAt": "2026-03-30T10:00:00.000Z"
                   }
                 }
               }
@@ -645,8 +657,14 @@
                   "success": true,
                   "message": "Profile updated successfully",
                   "data": {
-                    "fullname": "John Updated",
-                    "photo": "https://cloudinary.com/new_image.jpg"
+                    "id": "uuid",
+                    "fullname": "John Doe",
+                    "email": "user@example.com",
+                    "role": "user",
+                    "photo": "https://cloudinary.com/image.jpg",
+                    "tokenVersion": 0,
+                    "createdAt": "2026-03-30T10:00:00.000Z",
+                    "updatedAt": "2026-03-30T10:00:00.000Z"
                   }
                 }
               }
@@ -727,7 +745,14 @@
               "application/json": {
                 "example": {
                   "success": true,
-                  "message": "Password changed successfully"
+                  "message": "Password changed successfully",
+                  "data": {
+                    "id": "uuid",
+                    "fullname": "John Doe",
+                    "email": "user@example.com",
+                    "role": "user",
+                    "photo": null
+                  }
                 }
               }
             }
@@ -856,14 +881,14 @@
                   "message": "User filter data",
                   "data": [
                     {
-                      "id": "uuid1",
+                      "id": "uuid",
                       "fullname": "John Doe",
-                      "role": "user"
-                    },
-                    {
-                      "id": "uuid2",
-                      "fullname": "Kadiv Person",
-                      "role": "kadiv"
+                      "email": "user@example.com",
+                      "role": "user",
+                      "photo": "https://cloudinary.com/image.jpg",
+                      "tokenVersion": 0,
+                      "createdAt": "2026-03-30T10:00:00.000Z",
+                      "updatedAt": "2026-03-30T10:00:00.000Z"
                     }
                   ],
                   "page": 1,
@@ -940,7 +965,10 @@
                   "message": "User role updated",
                   "data": {
                     "id": "uuid",
-                    "role": "kadiv"
+                    "fullname": "John Doe",
+                    "email": "user@example.com",
+                    "role": "kadiv",
+                    "photo": null
                   }
                 }
               }
@@ -1049,14 +1077,22 @@
                   "message": "Announcement's Data",
                   "data": [
                     {
-                      "id": "uuid1",
+                      "id": "uuid",
                       "title": "Pendaftaran",
                       "slug": "pendaftaran",
+                      "content": "Isi pengumuman",
+                      "imageUrl": "https://cloudinary.url",
+                      "createdAt": "2026-03-31T12:00:00Z",
+                      "author": {
+                        "id": "uuid",
+                        "fullname": "Admin",
+                        "photo": "https://photo.url"
+                      },
                       "tags": [
                         {
-                          "tag": {
-                            "name": "Event"
-                          }
+                          "id": "uuid",
+                          "name": "Event",
+                          "slug": "event"
                         }
                       ]
                     }
@@ -1120,8 +1156,23 @@
                   "message": "Announcement's Detail Data",
                   "data": {
                     "id": "uuid",
-                    "title": "Detail",
-                    "content": "Full Content text"
+                    "title": "Pendaftaran",
+                    "slug": "pendaftaran",
+                    "content": "Isi pengumuman",
+                    "imageUrl": "https://cloudinary.url",
+                    "createdAt": "2026-03-31T12:00:00Z",
+                    "author": {
+                      "id": "uuid",
+                      "fullname": "Admin",
+                      "photo": "https://photo.url"
+                    },
+                    "tags": [
+                      {
+                        "id": "uuid",
+                        "name": "Event",
+                        "slug": "event"
+                      }
+                    ]
                   }
                 }
               }
@@ -1178,9 +1229,23 @@
                   "message": "Announcement's Detail Data",
                   "data": {
                     "id": "uuid",
-                    "title": "Detail",
-                    "slug": "detail-slug",
-                    "content": "Full Content text"
+                    "title": "Pendaftaran",
+                    "slug": "pendaftaran",
+                    "content": "Isi pengumuman",
+                    "imageUrl": "https://cloudinary.url",
+                    "createdAt": "2026-03-31T12:00:00Z",
+                    "author": {
+                      "id": "uuid",
+                      "fullname": "Admin",
+                      "photo": "https://photo.url"
+                    },
+                    "tags": [
+                      {
+                        "id": "uuid",
+                        "name": "Event",
+                        "slug": "event"
+                      }
+                    ]
                   }
                 }
               }
@@ -1223,7 +1288,10 @@
           }
         ],
         "requestBody": {
-          "required": true,
+          "required": [
+            "title",
+            "content"
+          ],
           "content": {
             "multipart/form-data": {
               "schema": {
@@ -1260,8 +1328,23 @@
                   "message": "Announcement created successfully",
                   "data": {
                     "id": "uuid",
-                    "title": "New",
-                    "imageUrl": "cloudinary.url"
+                    "title": "Pendaftaran",
+                    "slug": "pendaftaran",
+                    "content": "Isi pengumuman",
+                    "imageUrl": "https://cloudinary.url",
+                    "createdAt": "2026-03-31T12:00:00Z",
+                    "author": {
+                      "id": "uuid",
+                      "fullname": "Admin",
+                      "photo": "https://photo.url"
+                    },
+                    "tags": [
+                      {
+                        "id": "uuid",
+                        "name": "Event",
+                        "slug": "event"
+                      }
+                    ]
                   }
                 }
               }
@@ -1374,7 +1457,23 @@
                   "message": "Announcement updated successfully",
                   "data": {
                     "id": "uuid",
-                    "title": "Updated"
+                    "title": "Pendaftaran",
+                    "slug": "pendaftaran",
+                    "content": "Isi pengumuman",
+                    "imageUrl": "https://cloudinary.url",
+                    "createdAt": "2026-03-31T12:00:00Z",
+                    "author": {
+                      "id": "uuid",
+                      "fullname": "Admin",
+                      "photo": "https://photo.url"
+                    },
+                    "tags": [
+                      {
+                        "id": "uuid",
+                        "name": "Event",
+                        "slug": "event"
+                      }
+                    ]
                   }
                 }
               }
@@ -1467,7 +1566,27 @@
               "application/json": {
                 "example": {
                   "success": true,
-                  "message": "Announcement deleted successfully"
+                  "message": "Announcement deleted successfully",
+                  "data": {
+                    "id": "uuid",
+                    "title": "Pendaftaran",
+                    "slug": "pendaftaran",
+                    "content": "Isi pengumuman",
+                    "imageUrl": "https://cloudinary.url",
+                    "createdAt": "2026-03-31T12:00:00Z",
+                    "author": {
+                      "id": "uuid",
+                      "fullname": "Admin",
+                      "photo": "https://photo.url"
+                    },
+                    "tags": [
+                      {
+                        "id": "uuid",
+                        "name": "Event",
+                        "slug": "event"
+                      }
+                    ]
+                  }
                 }
               }
             }

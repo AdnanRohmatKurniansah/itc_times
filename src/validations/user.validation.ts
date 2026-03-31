@@ -22,8 +22,8 @@ export const UserProfileUpdateSchema = z.object({
 })
 
 export const UserChangePasswordSchema = z.object({
-  old_password: z.string().min(4, 'Old Password must be at least 4 characters'),
-  new_password: z.string().min(4, 'New Password must be at least 4 characters')
+  old_password: z.string().min(6, 'Old Password must be at least 6 characters'),
+  new_password: z.string().min(6, 'New Password must be at least 6 characters')
 })
 
 export const ForgotPasswordRequestSchema = z.object({
@@ -32,5 +32,5 @@ export const ForgotPasswordRequestSchema = z.object({
 
 export const ResetPasswordSchema = z.object({
   token: z.email().min(1, 'Token is required'),
-  new_password: z.string().min(4, 'New Password must be at least 4 characters'),
+  new_password: z.string().min(6, 'New Password must be at least 6 characters'),
 })
